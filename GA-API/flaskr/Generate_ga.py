@@ -1,4 +1,3 @@
-import sys
 import Db
 import random
 import numpy

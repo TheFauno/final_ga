@@ -63,3 +63,17 @@ class Connect:
         res = cursor.fetchone()
         cursor.close()
         return res
+
+    def insertGA(self, truck):
+        cursor = self._cnx.cursor()
+        query = "INSERT INTO ag_inicial (pala) VALUES(%s)"
+        cursor.execute(query, (truck,))
+        self._cnx.commit()
+        cursor.close()
+
+    def truncGAInit(self):
+        cursor = self._cnx.cursor()
+        query = "TRUNCATE TABLE ag_inicial"
+        cursor.execute(query)
+        self._cnx.commit()
+        cursor.close()
