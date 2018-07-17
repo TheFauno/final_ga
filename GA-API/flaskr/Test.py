@@ -4,6 +4,15 @@ import numpy
 import sys
 from deap import base, creator, tools, algorithms
 
+'''
+1°Crear población -> no evalua cromosomas valuidos
+2° Evaluar fitness, se cumple condición de término?  no ir a 3, si terminar ejecución -> evalua solo cromosomas validos
+3°seleccionar -> como se evaluaron cromosomas validos, se seleccionan los que tienen valor ?
+4°cruzar -> se cruzan valores del primer arreglo de la matriz, dejando las posiciones en cola intactas
+5°mutar -> 
+volver a 2
+'''
+
 class Test:
 
     def cxTwoPointCopy(self, ind1, ind2):
