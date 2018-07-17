@@ -3,6 +3,7 @@ from flask import Flask
 from flask import request
 from flaskr import First_ga
 from flaskr import Second_ga
+from flaskr import Test
 import json
 #import Generate_ga
 
@@ -30,6 +31,17 @@ def second_ga():
         sga = Second_ga.Second_ga(formdata)
         data = sga.createGA()
         del sga
+        return json.dumps(data)
+    else:
+        return json.dumps('method not allowed!')
+
+@app.route('/test', methods = ['GET'])
+def test():
+    #ejecutar segundo caso AG
+    if request.method == 'GET':
+        test = Test.Test()
+        data = test.main()
+        del test
         return json.dumps(data)
     else:
         return json.dumps('method not allowed!')

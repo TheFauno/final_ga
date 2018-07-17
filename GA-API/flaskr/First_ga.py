@@ -53,7 +53,8 @@ class First_ga():
 
         conn.disconnect()
 
-        pop = toolbox.population(n=10)
+        pop = toolbox.population(n=100)
+
         hof = tools.HallOfFame(1)
         
         '''stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -64,7 +65,7 @@ class First_ga():
         stats.register("max", numpy.max)'''
 
         #pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=10, stats=stats, halloffame=hof, verbose=False)
-        pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=10, halloffame=hof, verbose=False)
+        pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=2500, halloffame=hof, verbose=False)
         
         #print("best solution")
         #print(hof[0])
