@@ -42,19 +42,32 @@ class Second_ga():
 
         #population config
         toolbox = base.Toolbox()
-        toolbox.register("attr_float", random.randint, self.MIN, self.N_SHOVELS) #cell value type
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, self.N_TRUCKS) # define individuo
+        toolbox.register("attr_int", random.randint, self.MIN, self.N_SHOVELS) #cell value type
+        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_int, self.N_TRUCKS) # define individuo
         toolbox.register("population", tools.initRepeat, list, toolbox.individual) #crea la poblacion
+        print 'evalua'
         toolbox.register("evaluate", self.evalMin)
+        print 'fin evaluacion'
         toolbox.register("mate", tools.cxTwoPoint)
         toolbox.register("mutate", tools.mutUniformInt, low=1, up=self.N_SHOVELS, indpb=0.05)
         toolbox.register("select", tools.selTournament, tournsize=3)
+        conn.disconnect()
+        pop = toolbox.population(n=10)
+        hof = tools.HallOfFame(1)
+        pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=10, halloffame=hof, verbose=False)
         return 'hola mundo'
+
+    def setIndividual(self):
+
+        return random.randint(self.MIN, self.N_SHOVELS)
 
     def evalMin(self, individual):
         #funcion fitness basada en MTCT
         #debiese considerar camiones que estan cargando y descargando minerales
-        return 'evalMin'
+        print 'individuo:'
+        print(type(individual))
+        print(individual)
+        return 1
     
     #limpiar memoria
     def clear(self, toolbox):
