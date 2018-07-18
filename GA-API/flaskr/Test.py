@@ -1,19 +1,14 @@
 import random
 import array
-import numpy
+import math
+import numpy as np
 import sys
 from deap import base, creator, tools, algorithms
 
-'''
-1°Crear población -> no evalua cromosomas valuidos
-2° Evaluar fitness, se cumple condición de término?  no ir a 3, si terminar ejecución -> evalua solo cromosomas validos
-3°seleccionar -> como se evaluaron cromosomas validos, se seleccionan los que tienen valor ?
-4°cruzar -> se cruzan valores del primer arreglo de la matriz, dejando las posiciones en cola intactas
-5°mutar -> 
-volver a 2
-'''
-
 class Test:
+
+    N_TRUCKS = 6
+    N_SHOVELS = 4
 
     def cxTwoPointCopy(self, ind1, ind2):
         """Execute a two points crossover with copy on the input individuals. The
@@ -43,18 +38,38 @@ class Test:
             
         return ind1, ind2
 
+
+    def InitMatrix(self, container):
+        IND = np.zeros((3, self.N_TRUCKS))
+        for i in range(3):
+            for j in range(self.N_TRUCKS):
+                if i == 0:
+                    #row 1: shovels
+                    ranValue = np.random.uniform(low= 0, high=self.N_SHOVELS)
+                    IND[i][j] = math.floor(ranValue)
+                if i == 1:
+                    #row 2: queue position
+                    #posibilidad de encontrar una posicion de fila entre 1 y cantidad de palas
+                    ranValue = np.random.uniform(low= 1, high=self.N_SHOVELS+1)
+                    IND[i][j] = math.floor(ranValue)                
+                #row 3: estimated arrival time se mantiene con valores generados, aun no se calcularan tiempos estimados
+                # hora de simulacion + sumatoria de camiones en una pala
+        print(IND)
+        return container(IND)
+
+
     def main(self):
 
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         #creator.create("Individual", array.array, typecode='b', fitness=creator.FitnessMax)
-        creator.create("Individual", numpy.ndarray, fitness=creator.FitnessMax)
+        creator.create("Individual", np.ndarray, fitness=creator.FitnessMax)
         toolbox = base.Toolbox()
 
         # Attribute generator
         toolbox.register("attr_bool", random.randint, 0, 1)
 
         # Structure initializers
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, 100)
+        toolbox.register("individual", self.InitMatrix, creator.Individual)
         toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
         def evalOneMax(individual):
@@ -65,17 +80,20 @@ class Test:
         toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
         toolbox.register("select", tools.selTournament, tournsize=3)
 
-        random.seed(64)
+        #random.seed(64)
         
         pop = toolbox.population(n=300)
         #hof = tools.HallOfFame(1)
-        hof = tools.HallOfFame(1, similar=numpy.array_equal)
+        hof = tools.HallOfFame(1, similar=np.array_equal)
         stats = tools.Statistics(lambda ind: ind.fitness.values)
-        stats.register("avg", numpy.mean)
-        stats.register("std", numpy.std)
-        stats.register("min", numpy.min)
-        stats.register("max", numpy.max)
-        
-        pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, stats=stats, halloffame=hof, verbose=True)
+        stats.register("avg", np.mean)
+        stats.register("std", np.std)
+        stats.register("min", np.min)
+        stats.register("max", np.max)
+        print(type(pop))
+
+
+
+        #pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, stats=stats, halloffame=hof, verbose=True)
         return 'hola'
         #return pop, log, hof
