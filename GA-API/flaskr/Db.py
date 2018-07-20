@@ -16,6 +16,16 @@ class Connect:
     #close connection
     def disconnect(self):
         self._cnx.close()
+
+    def getTruckStates(self):
+        #cursor
+        cursor = self._cnx.cursor()
+        #devuelve cuantos tipos se crearan y caracteristicas
+        query = "SELECT * FROM flujo_camion where Terminado = 0"
+        cursor.execute(query)
+        res = cursor.fetchall()
+        cursor.close()
+        return res
     
     #get truck types
     def getTruckTypes(self):

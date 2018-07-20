@@ -1,5 +1,6 @@
 import Db
 import random
+import math
 import numpy as np
 import sys
 from deap import base, creator, tools, algorithms
@@ -42,8 +43,8 @@ class Second_ga():
 
         #population config
         toolbox = base.Toolbox()
-        toolbox.register("attr_int", random.randint, self.MIN, self.N_SHOVELS) #cell value type
-        toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_int, self.N_TRUCKS) # define individuo
+        #toolbox.register("attr_int", random.randint, self.MIN, self.N_SHOVELS) #cell value type
+        toolbox.register("individual", self.InitMatrix, creator.Individual) # define individuo
         toolbox.register("population", tools.initRepeat, list, toolbox.individual) #crea la poblacion
         toolbox.register("evaluate", self.evalMin)
         toolbox.register("mate", tools.cxTwoPoint)
@@ -56,9 +57,32 @@ class Second_ga():
         print pop
         return 'hola mundo'
 
-    def setIndividual(self):
-
-        return random.randint(self.MIN, self.N_SHOVELS)
+    def InitMatrix(self, container):
+        IND = np.zeros((3, self.N_TRUCKS))
+        conn = Db.Connect(self.cdata)
+        truckStates = conn.getTruckStates()
+        truckTypes = conn.getTruckTypes()
+        conn.disconnect()
+        for i in range(3):
+            for j in range(self.N_TRUCKS):
+                if i == 0:
+                    #row 1: shovels
+                    ranValue = np.random.uniform(low= 0, high=self.N_SHOVELS)
+                    IND[i][j] = math.floor(ranValue)
+                if i == 1:
+                    #row 2: queue position
+                    #posibilidad de encontrar una posicion de fila entre 1 y cantidad de palas
+                    ranValue = np.random.uniform(low= 1, high=self.N_SHOVELS+1)
+                    IND[i][j] = math.floor(ranValue)
+                if i==2:
+                    #row 3: estimated arrival time se mantiene con valores generados, aun no se calcularan tiempos estimados
+                    # hora de simulacion + sumatoria de camiones en una pala
+                    #observar los estados de todos los camiones
+                    #separar por palas
+                    #por cada pala ir obeniendo el t_max_s#
+                    
+        print(IND)
+        return container(IND)
 
     def evalMin(self, individual):
         #funcion fitness basada en MTCT

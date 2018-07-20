@@ -143,7 +143,7 @@ class First_ga():
             conn.disconnect()
             #obtener tiempo carga
             #lista de mtct en i0 guardar:
-            #tiempo de ciclo estimado (tiempo de viaje) + tiempo espera estimado en cola + tiempo maniobra + tiempo carga + hora en simulador
+            #tiempo de ciclo estimado + tiempo espera estimado en cola + tiempo maniobra + tiempo carga + hora en simulador
             estimatedcycletime = mTime + estimatedTravelTime + totalWaitingTime #verificar unidades
             mtct.append(estimatedcycletime)
         #resultado mtct individuo actual

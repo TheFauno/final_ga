@@ -57,6 +57,11 @@ class Test:
         print(IND)
         return container(IND)
 
+    def calculateTga(self, individual):
+        #here we calculate the estimated arrival time to C state for the next m trucks
+        #recibe un individuo de tipo numpy.ndarray se modificara la posicion de la 3ra fila, los datos de la fila 1 y 2 seran utilizados para obtener el resultado de la fila 3
+        #la formula segun bastos es: 
+        return 'hola'
 
     def main(self):
 
@@ -91,8 +96,6 @@ class Test:
         stats.register("min", np.min)
         stats.register("max", np.max)
         print(type(pop))
-
-
 
         #pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=40, stats=stats, halloffame=hof, verbose=True)
         return 'hola'
