@@ -17,11 +17,21 @@ class Connect:
     def disconnect(self):
         self._cnx.close()
 
+    def getTruckInfo(self, id):
+        #cursor
+        cursor = self._cnx.cursor()
+        #devuelve cuantos tipos se crearan y caracteristicas
+        query = "SELECT c.id, c.nombre, tc.*, fc.NombreEstacion FROM camion c, tipocamion tc, flujo_camion fc WHERE c.id = %s AND c.fk_tipo = tc.Tipo AND fc.IdFlujo = (SELECT MAX(f.IdFlujo) FROM flujo_camion f WHERE f.NombreCamion = c.nombre)"
+        cursor.execute(query, (id,))
+        res = cursor.fetchone()
+        cursor.close()
+        return res
+
     def getTruckStates(self):
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
-        query = "SELECT * FROM flujo_camion where Terminado = 0"
+        query = "SELECT * FROM flujo_camion where NombreEstacion LIKE 'Pala%' AND Terminado = 0"
         cursor.execute(query)
         res = cursor.fetchall()
         cursor.close()
@@ -49,12 +59,23 @@ class Connect:
         cursor.close()
         return res
 
-    def getTrucksInShovel(self, shovel):
+    def getTrucksInStation(self, shovel):
         cursor = self._cnx.cursor()
-        query = "SELECT * FROM flujo_camion WHERE NombreEstacion = %s AND Terminado = 0"
+        #query = "SELECT * FROM flujo_camion WHERE NombreEstacion = %s AND Terminado = 0"
+        query = "SELECT fc.IdFlujo, fc.NombreCamion, fc.NombreEstacion, fc.TipoBuffer, tc.* FROM flujo_camion fc, tipocamion tc  WHERE fc.NombreEstacion = %s AND fc.Terminado = 0 and fc.TipoCamion = tc.Tipo"
         shovel = str(shovel)
         cursor.execute(query, (shovel,))
         res = cursor.fetchall()
+        cursor.close()
+        return res
+
+    def getUnloadStation(self, stationName):
+        cursor = self._cnx.cursor()
+        #query = "SELECT * FROM flujo_camion WHERE NombreEstacion = %s AND Terminado = 0"
+        query = "SELECT * FROM descargas WHERE nombre = %s"
+        stationName = str(stationName)
+        cursor.execute(query, (stationName,))
+        res = cursor.fetchone()
         cursor.close()
         return res
 

@@ -34,7 +34,7 @@ def second_ga():
         return json.dumps(data)
     else:
         return json.dumps('method not allowed!')
-
+'''
 @app.route('/test', methods = ['GET'])
 def test():
     #ejecutar segundo caso AG
@@ -45,5 +45,5 @@ def test():
         return json.dumps(data)
     else:
         return json.dumps('method not allowed!')
-
+'''
 app.run(debug=True)
