@@ -27,6 +27,16 @@ class Connect:
         cursor.close()
         return res
 
+    def getTrucksInShovel(self, shovel):
+        #cursor
+        cursor = self._cnx.cursor()
+        #devuelve cuantos tipos se crearan y caracteristicas
+        query = "SELECT * FROM flujo_camion where NombreEstacion = %s AND Terminado = 0"
+        cursor.execute(query, (shovel,))
+        res = cursor.fetchall()
+        cursor.close()
+        return res
+
     def getTruckStates(self):
         #cursor
         cursor = self._cnx.cursor()
@@ -47,14 +57,34 @@ class Connect:
         res = cursor.fetchall()
         cursor.close()
         return res
+
+    def getTruckNumber(self):
+        #cursor
+        cursor = self._cnx.cursor()
+        #devuelve cuantos tipos se crearan y caracteristicas
+        query = "select sum(Cantidad)+1 as n_trucks from tipocamion"
+        cursor.execute(query,)
+        res = cursor.fetchone()
+        cursor.close()
+        return int(res[0])
+
+    def getShovelNumber(self):
+        #cursor
+        cursor = self._cnx.cursor()
+        #devuelve cuantos tipos se crearan y caracteristicas
+        query = "select max(id) as n_shovels from palas"
+        cursor.execute(query,)
+        res = cursor.fetchone()
+        cursor.close()
+        return int(res[0])
     
     def getRoutesToDestination(self, nodoActual, nodoDestino):
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
         query = "SELECT * FROM rutas WHERE nodo_actual = %s AND nodo_destino = %s"
-        params = (str(nodoActual), str(nodoDestino))
-        cursor.execute(query, (nodoActual, nodoDestino))
+        params = (nodoActual, nodoDestino)
+        cursor.execute(query, params)
         res = cursor.fetchall()
         cursor.close()
         return res
@@ -83,7 +113,7 @@ class Connect:
         cursor = self._cnx.cursor()
         query = "SELECT * FROM palas WHERE nombre = %s"
         cursor.execute(query, (shovel,))
-        res = cursor.fetchall()
+        res = cursor.fetchone()
         cursor.close()
         return res
 
