@@ -21,12 +21,12 @@ class Connect:
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
-        query = "SELECT c.id, c.nombre, tc.*, fc.NombreEstacion FROM camion c, tipocamion tc, flujo_camion fc WHERE c.id = %s AND c.fk_tipo = tc.Tipo AND fc.IdFlujo = (SELECT MAX(f.IdFlujo) FROM flujo_camion f WHERE f.NombreCamion = c.nombre)"
+        query = "SELECT c.id, c.nombre, tc.*, fc.NombreEstacion, fc.estado FROM camion c, tipocamion tc, flujo_camion fc WHERE c.id = %s AND c.fk_tipo = tc.Tipo AND fc.IdFlujo = (SELECT MAX(f.IdFlujo) FROM flujo_camion f WHERE f.NombreCamion = c.nombre)"
         cursor.execute(query, (id,))
         res = cursor.fetchone()
         cursor.close()
         return res
-
+        
     def getTrucksInShovel(self, shovel):
         #cursor
         cursor = self._cnx.cursor()
@@ -41,7 +41,12 @@ class Connect:
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
-        query = "SELECT * FROM flujo_camion where NombreEstacion LIKE 'Pala%' AND Terminado = 0"
+        '''query = """SELECT fc.*, c.id, c.fk_tipo, p.velocidad_carga_promedio, p.destino, tc.TiempoPromedioManiobra, tc.Capacidad 
+        FROM flujo_camion fc, camion c, palas p, tipocamion tc 
+        where fc.NombreEstacion LIKE 'Pala%' AND fc.Terminado = 0 AND fc.NombreCamion = c.nombre AND fc.NombreEstacion = p.nombre AND c.fk_tipo = tc.Tipo"""'''
+        query = """SELECT fc.*, c.id, c.fk_tipo, tc.TiempoPromedioManiobra, tc.Capacidad, tc.VelocidadPromedioDescargado, tc.VelocidadPromedioCargado
+        FROM flujo_camion fc, camion c, tipocamion tc 
+        where fc.Terminado = 0 AND fc.NombreCamion = c.nombre AND c.fk_tipo = tc.Tipo"""
         cursor.execute(query)
         res = cursor.fetchall()
         cursor.close()
@@ -92,7 +97,7 @@ class Connect:
     def getTrucksInStation(self, shovel):
         cursor = self._cnx.cursor()
         #query = "SELECT * FROM flujo_camion WHERE NombreEstacion = %s AND Terminado = 0"
-        query = "SELECT fc.IdFlujo, fc.NombreCamion, fc.NombreEstacion, fc.TipoBuffer, tc.* FROM flujo_camion fc, tipocamion tc  WHERE fc.NombreEstacion = %s AND fc.Terminado = 0 and fc.TipoCamion = tc.Tipo"
+        query = "SELECT fc.IdFlujo, fc.NombreCamion, fc.NombreEstacion, fc.estado, fc.horasimulacion, tc.* FROM flujo_camion fc, tipocamion tc  WHERE fc.NombreEstacion = %s AND fc.Terminado = 0 and fc.TipoCamion = tc.Tipo"
         shovel = str(shovel)
         cursor.execute(query, (shovel,))
         res = cursor.fetchall()
