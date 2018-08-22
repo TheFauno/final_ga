@@ -16,6 +16,7 @@ class Second_ga():
     #arrays de palas
     SHOVEL_0 = []
     SHOVEL_1 = []
+
     #connection configuration
     cdata = {
         "host": "localhost",
@@ -48,14 +49,18 @@ class Second_ga():
         #ta = [0] * self.N_TRUCKS
         #res = self.calc_tga(self.SHOVEL_0, self.SHOVEL_1, self.tCurrent)
         #print("res = %s" % res)
+        #calcular TA
+        ta = self.getTA(conn)
+        #AG
         creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
         creator.create("Individual", list, fitness = creator.FitnessMin)
         #operators
         toolbox = base.Toolbox()
-        toolbox.register("individual", self.InitMatrix, creator.Individual, conn) # define individuo
+        toolbox.register("individual", self.InitMatrix, creator.Individual, ta) # define individuo
         toolbox.register("population", tools.initRepeat, list, toolbox.individual) #crea la poblacion
         pop = toolbox.population(n=5)
         print(pop)
+        sys.exit()
         toolbox.register("evaluate", self.evalMin)
 
         #toolbox.register("mate", self.cxTwoPoint, candidates)
@@ -73,15 +78,12 @@ class Second_ga():
         #print pop
         return 'hola mundo'
 
-    def InitMatrix(self, container, conn):
-        l1 = []
-        l2 = []
+    def InitMatrix(self, container, ta):
+        shovel = []
         for i in range(1, self.N_TRUCKS):
             shovelassignment = random.randint(0, self.N_SHOVELS-1)
-            l1.append(shovelassignment)
-            truckstate = self.searchTruckState(i)
-            l2.append(self.CalcTa(conn, shovelassignment, truckstate))
-        return container([l1,l2])
+            shovel.append(shovelassignment)
+        return container([shovel,ta])
 
     def evalMin(self, individual):
         conn = Db.Connect(self.cdata)
@@ -90,7 +92,14 @@ class Second_ga():
         #calcular TGA
         return (1.0,)
     
-    def CalcTa(self, conn, shovelassignment, truckstate):
+    def getTA(self, conn):
+        ta = []
+        for i in range(1, self.N_TRUCKS):
+            truckstate = self.searchTruckState(i)
+            ta.append(self.CalcTa(conn, truckstate))
+        return ta
+
+    def CalcTa(self, conn, truckstate):
         #calcta es llamada cada vez que se realiza la evaluacion del individuo
         #shovel assignment sera el numero generado aleatoriamente por el cromosoma del individuo
             #ts[7] == "vc" or ts[7] == "vd" no realizan cambios ya que no son observados
@@ -205,7 +214,9 @@ class Second_ga():
 
                 elif str(truckstate[7]) == "sag":
                     print("esta en sag")
+                    #ya se encuentra en el ultimo estado
                     estimatedarrivaltime = 0
+                    '''estimatedarrivaltime = 0
                     shovelname = "Pala"+str(shovelassignment)
                     shovel = conn.getShovel(shovelname)
                     #datos obligatorios
@@ -241,11 +252,13 @@ class Second_ga():
                         deltatime = abs(float(self.tCurrent) -float(truckinunload[4].replace(",", ".")))
                         sumtrucksinunload = sumtrucksinunload + (truckinunload[9] * unload[2]) + truckinunload[8] - deltatime
 
-                    estimatedarrivaltime = loadtraveltime + sumtrucksinshovel + unloadtraveltime + sumtrucksinunload
+                    estimatedarrivaltime = loadtraveltime + sumtrucksinshovel + unloadtraveltime + sumtrucksinunload'''
             
             return estimatedarrivaltime
+
     def calc_tga(self, atl_s0, atl_s1, tCurrent):
         pass
+        
     #limpiar memoria
     def clear(self, toolbox):
         #this function purpose is unregister elements in toolbox
