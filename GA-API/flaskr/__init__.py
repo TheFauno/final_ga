@@ -23,6 +23,17 @@ def first_ga():
     else:
         return json.dumps('method not allowed!')
 
+@app.route('/second', methods = ['POST'])
+def second():
+    if request.method == 'POST':
+        formdata = request.form
+        best_ind = Test.main(formdata['timeNow'])
+        print("resultado Algoritmo genetico para el presente")
+        print(best_ind)
+        return json.dumps(best_ind)
+    else:
+        return json.dumps('method not allowed!')
+
 @app.route('/second_ga', methods = ['POST'])
 def second_ga():
     #ejecutar segundo caso AG

@@ -2,11 +2,19 @@ import mysql.connector
 
 class Connect:
     #constructor - start connection
-    def __init__(self, configdata):
-        self._host = configdata["host"]
-        self._username = configdata["username"]
-        self._password = configdata["password"]
-        self._database = configdata["database"]
+    def __init__(self):
+
+        cdata = {
+            "host": "localhost",
+            "username": "root",
+            "password": "",
+            "database": "simio"
+        }
+
+        self._host = cdata["host"]
+        self._username = cdata["username"]
+        self._password = cdata["password"]
+        self._database = cdata["database"]
         self._cnx = mysql.connector.connect(  
                                             user=self._username, 
                                             password=self._password,
@@ -67,7 +75,7 @@ class Connect:
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
-        query = "select sum(Cantidad)+1 as n_trucks from tipocamion"
+        query = "select sum(Cantidad) as n_trucks from tipocamion"
         cursor.execute(query,)
         res = cursor.fetchone()
         cursor.close()
