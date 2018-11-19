@@ -8,7 +8,7 @@ class Connect:
             "host": "localhost",
             "username": "root",
             "password": "",
-            "database": "simio"
+            "database": "flow_truck"
         }
 
         self._host = cdata["host"]
@@ -49,12 +49,11 @@ class Connect:
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
-        '''query = """SELECT fc.*, c.id, c.fk_tipo, p.velocidad_carga_promedio, p.destino, tc.TiempoPromedioManiobra, tc.Capacidad 
-        FROM flujo_camion fc, camion c, palas p, tipocamion tc 
-        where fc.NombreEstacion LIKE 'Pala%' AND fc.Terminado = 0 AND fc.NombreCamion = c.nombre AND fc.NombreEstacion = p.nombre AND c.fk_tipo = tc.Tipo"""'''
-        query = """SELECT fc.*, c.id, c.fk_tipo, tc.TiempoPromedioManiobra, tc.Capacidad, tc.VelocidadPromedioDescargado, tc.VelocidadPromedioCargado
+        '''query = """SELECT fc.*, c.id, c.fk_tipo, tc.TiempoPromedioManiobra, tc.Capacidad, tc.VelocidadPromedioDescargado, tc.VelocidadPromedioCargado
         FROM flujo_camion fc, camion c, tipocamion tc 
-        where fc.Terminado = 0 AND fc.NombreCamion = c.nombre AND c.fk_tipo = tc.Tipo"""
+        where fc.Terminado = 0 AND fc.NombreCamion = c.nombre AND c.fk_tipo = tc.Tipo"""'''
+
+        query = "select tf.*, t.* from truck_flow tf, truck t where tf.FINISHED = 'No' AND tf.TRUCK_ID = t.ID"
         cursor.execute(query)
         res = cursor.fetchall()
         cursor.close()
@@ -75,7 +74,8 @@ class Connect:
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
-        query = "select sum(Cantidad) as n_trucks from tipocamion"
+        '''query = "select sum(Cantidad) as n_trucks from tipocamion"'''
+        query = "select count(*) as n_trucks from truck"
         cursor.execute(query,)
         res = cursor.fetchone()
         cursor.close()
@@ -85,7 +85,7 @@ class Connect:
         #cursor
         cursor = self._cnx.cursor()
         #devuelve cuantos tipos se crearan y caracteristicas
-        query = "select max(id) as n_shovels from palas"
+        query = "select max(ID) from shovel"
         cursor.execute(query,)
         res = cursor.fetchone()
         cursor.close()
@@ -94,18 +94,22 @@ class Connect:
     def getRoutesToDestination(self, nodoActual, nodoDestino):
         #cursor
         cursor = self._cnx.cursor()
-        #devuelve cuantos tipos se crearan y caracteristicas
-        query = "SELECT * FROM rutas WHERE nodo_actual = %s AND nodo_destino = %s"
+        #devuelve destino de la pala
+        #query = "SELECT * FROM rutas WHERE nodo_actual = %s AND nodo_destino = %s"
+        query = "SELECT * FROM shortest_path WHERE STARTING_AT = %s AND DIRECTED_TO = %s"
         params = (nodoActual, nodoDestino)
         cursor.execute(query, params)
-        res = cursor.fetchall()
+        res = cursor.fetchone()
         cursor.close()
         return res
 
     def getTrucksInStation(self, shovel):
         cursor = self._cnx.cursor()
         #query = "SELECT * FROM flujo_camion WHERE NombreEstacion = %s AND Terminado = 0"
-        query = "SELECT fc.IdFlujo, fc.NombreCamion, fc.NombreEstacion, fc.estado, fc.horasimulacion, tc.* FROM flujo_camion fc, tipocamion tc  WHERE fc.NombreEstacion = %s AND fc.Terminado = 0 and fc.TipoCamion = tc.Tipo"
+        #query = "SELECT fc.IdFlujo, fc.NombreCamion, fc.NombreEstacion, fc.estado, fc.horasimulacion, tc.* FROM flujo_camion fc, tipocamion tc  WHERE fc.NombreEstacion = %s AND fc.Terminado = 0 and fc.TipoCamion = tc.Tipo"
+        query = """SELECT tf.*, t.* 
+                    FROM truck_flow tf, truck t
+                    WHERE tf.STATION_ID = %s AND tf.FINISHED = 'No' AND tf.TRUCK_ID = t.ID"""
         shovel = str(shovel)
         cursor.execute(query, (shovel,))
         res = cursor.fetchall()
@@ -115,7 +119,8 @@ class Connect:
     def getUnloadStation(self, stationName):
         cursor = self._cnx.cursor()
         #query = "SELECT * FROM flujo_camion WHERE NombreEstacion = %s AND Terminado = 0"
-        query = "SELECT * FROM descargas WHERE nombre = %s"
+        '''query = "SELECT * FROM descargas WHERE nombre = %s"'''
+        query = "select * from unload where POSITIONED_AT = %s"
         stationName = str(stationName)
         cursor.execute(query, (stationName,))
         res = cursor.fetchone()
@@ -124,8 +129,18 @@ class Connect:
 
     def getShovel(self, shovel):
         cursor = self._cnx.cursor()
-        query = "SELECT * FROM palas WHERE nombre = %s"
+        #query = "SELECT * FROM palas WHERE nombre = %s"
+        query = "SELECT * FROM shovel WHERE STATION_ID = %s"
         cursor.execute(query, (shovel,))
+        res = cursor.fetchone()
+        cursor.close()
+        return res
+
+    def getShovelById(self, id):
+        cursor = self._cnx.cursor()
+        #query = "SELECT * FROM palas WHERE nombre = %s"
+        query = "SELECT * FROM shovel WHERE ID = %s"
+        cursor.execute(query, (id,))
         res = cursor.fetchone()
         cursor.close()
         return res
