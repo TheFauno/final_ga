@@ -52,6 +52,7 @@ class Connect:
         '''query = """SELECT fc.*, c.id, c.fk_tipo, tc.TiempoPromedioManiobra, tc.Capacidad, tc.VelocidadPromedioDescargado, tc.VelocidadPromedioCargado
         FROM flujo_camion fc, camion c, tipocamion tc 
         where fc.Terminado = 0 AND fc.NombreCamion = c.nombre AND c.fk_tipo = tc.Tipo"""'''
+
         query = "select tf.*, t.* from truck_flow tf, truck t where tf.FINISHED = 'No' AND tf.TRUCK_ID = t.ID"
         cursor.execute(query)
         res = cursor.fetchall()
@@ -98,7 +99,7 @@ class Connect:
         query = "SELECT * FROM shortest_path WHERE STARTING_AT = %s AND DIRECTED_TO = %s"
         params = (nodoActual, nodoDestino)
         cursor.execute(query, params)
-        res = cursor.fetchall()
+        res = cursor.fetchone()
         cursor.close()
         return res
 
@@ -135,10 +136,10 @@ class Connect:
         cursor.close()
         return res
 
-    def getLoadName(self, shovel):
+    def getShovel(self, shovel):
         cursor = self._cnx.cursor()
         #query = "SELECT * FROM palas WHERE nombre = %s"
-        query = "SELECT POSITIONED_AT FROM shovel WHERE ID = %s"
+        query = "SELECT * FROM shovel WHERE STATION_ID = %s"
         cursor.execute(query, (shovel,))
         res = cursor.fetchone()
         cursor.close()
@@ -149,6 +150,14 @@ class Connect:
         #query = "SELECT * FROM palas WHERE nombre = %s"
         query = "SELECT * FROM shovel WHERE ID = %s"
         cursor.execute(query, (id,))
+        res = cursor.fetchone()
+        cursor.close()
+        return res
+
+    def getTruckCapacity(self, type):
+        cursor = self._cnx.cursor()
+        query = "SELECT * FROM tipocamion WHERE Tipo = %s"
+        cursor.execute(query, (type,))
         res = cursor.fetchone()
         cursor.close()
         return res
@@ -175,19 +184,10 @@ class Connect:
         cursor.close()
         return res
 
-    def getTrucksIndex(self):
+    def getUnloadName(self, unload_index):
         cursor = self._cnx.cursor()
-        query = "SELECT ID FROM TRUCK"
-        cursor.execute(query)
-        res = cursor.fetchall()
-        cursor.close()
-        return res
-
-    def getShovelName(self, shovel_index):
-        cursor = self._cnx.cursor()
-        #query = "SELECT POSITIONED_AT FROM TRUCK WHERE ID = %s"
-        query = "SELECT POSITIONED_AT FROM SHOVEL WHERE ID = %s"
-        cursor.execute(query, (shovel_index,))
+        query = "SELECT POSITIONED_AT FROM TRUCK WHERE ID = %s"
+        cursor.execute(query, (unload_index,))
         res = cursor.fetchone()
         cursor.close()
         return res
@@ -198,43 +198,3 @@ class Connect:
         cursor.execute(query, (truck_index, unload_index))
         self._cnx.commit()
         cursor.close()
-
-    def insertAssignments(self, assignments):
-        cursor = self._cnx.cursor()
-        i = 0
-        for assignment in assignments:
-            query = "INSERT INTO ASSIGNMENT(TRUCK_ID, SHOVEL_ID) VALUES(%s, %s)"
-            cursor.execute(query, (assignment[0][0], assignment[1]))
-            i = i+1
-        self._cnx.commit()
-        cursor.close()
-
-    def updateAssignments(self):
-        cursor = self._cnx.cursor()
-        query = "UPDATE ASSIGNMENT SET STATUS = %s WHERE status = %s"
-        cursor.execute(query, ('not assigned', 'assigned'))
-        self._cnx.commit()
-        cursor.close()
-
-    def updateAssignment(self, truckId):
-        cursor = self._cnx.cursor()
-        query = "UPDATE ASSIGNMENT SET STATUS = %s WHERE TRUCK_ID = %s AND STATUS = %s"
-        cursor.execute(query, ('assigned', truckId[0][0], 'not assigned'))
-        self._cnx.commit()
-        cursor.close()
-
-    def hasAssignment(self, truckId):
-        cursor = self._cnx.cursor()
-        query = "SELECT SHOVEL_ID FROM ASSIGNMENT WHERE TRUCK_ID = %s AND STATUS = 'not assigned'"
-        cursor.execute(query, (truckId[0][0],))
-        res = cursor.fetchall()
-        cursor.close()
-        return res
-
-    def findTruckByName(self, truckName):
-        cursor = self._cnx.cursor()
-        query = "SELECT ID FROM TRUCK WHERE NAME = %s"
-        cursor.execute(query, (truckName,))
-        res = cursor.fetchall()
-        cursor.close()
-        return res

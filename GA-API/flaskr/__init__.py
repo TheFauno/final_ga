@@ -1,21 +1,31 @@
+#!/usr/bin/python
+
 import os
 from flask import Flask
 from flask import request
-from flaskr import Test
+import Test
+import CheckAssignment
 import json
-
+from waitress import serve
 from flask import Flask
-app = Flask(__name__)
 
-@app.route('/second', methods = ['POST'])
+app = Flask(__name__)
+print(__name__)
+@app.route('/', methods = ['POST'])
 def second():
+    response = {}
     if request.method == 'POST':
         formdata = request.form
-        best_ind = Test.main(formdata['timeNow'], formdata['truckFullName'])
-        print("resultado Algoritmo genetico para el presente")
-        print(best_ind)
-        return json.dumps(best_ind)
+        assignment = CheckAssignment.checkAssignment(formdata['truckName'])
+        if assignment:
+            response["TruckDestination"] = "Input@"+assignment
+        else:
+            best_ind = Test.main(formdata['requestedTime'], formdata['truckName'])
+            response["TruckDestination"] = "Input@"+best_ind[3]
+        print(json.dumps(response))
     else:
-        return json.dumps('method not allowed!')
+        response['TruckDestination'] = 'method not allowed'
+    return json.dumps(response)
 
-app.run(debug=True)
+app.run(debug=True, threaded=True)
+serve(app, port=8080, host='127.0.0.1')
